@@ -39,7 +39,7 @@ soup = BeautifulSoup(html_content, 'html.parser')
 
 # Iterate over each line of the document and delete empty tags
 for x in soup.find_all():
-    if len(x.get_text(strip=True)) == 0 and x.name not in ['font']:
+    if len(x.get_text(strip=True)) == 0 and x.name not in ['font'] and len(x.find_all()) == 0:
         x.extract()
 
 # Find the title of event
@@ -110,16 +110,15 @@ for course_index, table in enumerate(tables[1:]):
             # Recording splits from tre same row
             elif is_runner_found and runner_info_start_index is not None:
                 if cell_index == runner_info_start_index + 1:
-                    bib = cell.text.strip()
+                    bib = cell.text.strip() if cell.text.strip() != '' else "<--->"
                 elif cell_index == runner_info_start_index + 2:
-                    name = cell.text.strip()
+                    name = cell.text.strip() if cell.text.strip() != '' else "<--->"
                 elif cell_index == runner_info_start_index + 3:
-                    group = cell.text.strip()
+                    group = cell.text.strip() if cell.text.strip() != '' else "<--->"
                 elif cell_index == runner_info_start_index + 4:
-                    time = cell.text.strip()
+                    time = cell.text.strip() if cell.text.strip() != '' else "<--->"
                 # splits
-                elif cell_index > runner_info_start_index + 4 and \
-                        cell_index < runner_info_start_index + 4 + len(course_controls):
+                elif len(runner_splits) < len(course_controls):
                     runner_splits.append(cell.text.strip())
 
                 # if splits end on the same row they start - add a runner
