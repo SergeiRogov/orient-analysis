@@ -14,7 +14,7 @@ class Runner:
         self.splits = splits
 
     def __repr__(self):
-        return f"\n{self.__class__.__name__}({self.place}', {self.name}, {self.age_group} " \
+        return f"\n{self.__class__.__name__}({self.place}, {self.name}, {self.age_group} " \
                f"{self.overall_time} {self.bib} {self.course} {self.splits})"
 
 
@@ -67,14 +67,19 @@ for course_index, table in enumerate(tables[1:]):
     name = ''
     group = ''
     time = ''
-    runner_row_index = 0
+    info_row = None
+    num_of_control_rows = None
 
     # Extract table's rows
     rows = table.find_all('tr')
 
     # Process each row
     for row_index, row in enumerate(rows):
-        # print(row_index)
+        # Skip redundant row (with separated splits)
+        if info_row and num_of_control_rows and \
+                (info_row & 1) != (row_index & 1) and row_index - info_row < num_of_control_rows * 2 - 1:
+            continue
+        print(row_index)
 
         is_runner_found = False
         runner_info_start_index = None
@@ -88,26 +93,27 @@ for course_index, table in enumerate(tables[1:]):
 
         # Process each cell
         for cell_index, cell in enumerate(cells):
-
-            # skip cell if it's empty
-            if cell.text.strip() == '':
-                continue
+            print(cell)
 
             # Extracting course controls' sequence
-            elif cell.find(string=control_point) or cell.text.strip() == "F":
+            if cell.find(string=control_point) or cell.text.strip() == "F":
                 course_controls.append(cell.text.strip())
+                if cell.text.strip() == "F":
+                    # Number of rows covering a course
+                    # if it's a single row course (row_index = 0) - it still would be a 2 row course in splits
+                    num_of_control_rows = row_index + 1 if row_index > 0 else 2
 
             # Finding first field related to runner (first <font> tag)
             elif not is_runner_found and cell.find('font'):
                 is_runner_found = True
                 runner_info_start_index = cell_index
-                runner_row_index = row_index
+                info_row = row_index
                 runner_splits = []
                 # Recording info from this field
                 place_num = cell.text.strip()
 
             # Recording runners' info from the 4 following fields
-            # Recording splits from tre same row
+            # Recording splits from the same row
             elif is_runner_found and runner_info_start_index is not None:
                 if cell_index == runner_info_start_index + 1:
                     bib = cell.text.strip() if cell.text.strip() != '' else "<--->"
@@ -121,13 +127,14 @@ for course_index, table in enumerate(tables[1:]):
                 elif len(runner_splits) < len(course_controls):
                     runner_splits.append(cell.text.strip())
 
-                # if splits end on the same row they start - add a runner
-                if len(runner_splits) == len(course_controls):
-                    # Adding runner info
-                    course_runners.append(
-                        Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                    # if splits end on the same row they start - add a runner
+                    if len(runner_splits) == len(course_controls):
+                        # Adding runner info
+                        course_runners.append(
+                            Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
 
-            elif (runner_row_index & 1) == (row_index & 1) and runner_row_index != row_index:
+            # Adding splits from other rows with same parity
+            elif (info_row & 1) == (row_index & 1) and info_row != row_index:
                 runner_splits.append(cell.text.strip())
                 if len(runner_splits) == len(course_controls):
                     # Adding runner info
@@ -139,9 +146,7 @@ for course_index, table in enumerate(tables[1:]):
 
 for i in range(len(all_courses_runners)):
     for j in range(len(all_courses_runners[i])):
-        print(str(all_courses_runners[i][j].place) + ' ' + all_courses_runners[i][j].name + ' '
-              + all_courses_runners[i][j].age_group + ' ' + all_courses_runners[i][j].overall_time + ' '
-              + str(all_courses_runners[i][j].bib) + ' ' + all_courses_runners[i][j].course + ' '
-              + str(all_courses_runners[i][j].splits))
+        print(repr(all_courses_runners[i][j]))
+
 # pprint.pprint(all_courses_controls)
 # print(len(all_courses_controls[0]))
