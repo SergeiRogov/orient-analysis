@@ -22,20 +22,10 @@ def has_child_i_tag(tag):
 
 
 def extract_splits(html_file):
-    # Sequence of control points of every course
-    all_courses_controls = []
-
-    # List of lists of all runners
-    all_courses_runners = []
-
-    # Regular expression for a control point "3(57)"
-    control_point = re.compile(r'^\d{1,2}\(\d{2,3}\)\s*')
-
-    # Regular expression for a course title "Blue (16)"
-    course_title = re.compile(r'\w+\s*\(\d{2,3}\)\s*')
-
-    # Regular expression for time "03:22"
-    split_time = re.compile(r'\d{1,2}:\d{2}')
+    # Regular expressions
+    control_point = re.compile(r'^\d{1,2}\(\d{2,3}\)\s*')  # control point "3(57)"
+    course_title = re.compile(r'\w+\s*\(\d{2,3}\)\s*')  # course title "Blue (16)"
+    split_time = re.compile(r'\d{1,2}:\d{2}')  # time "03:22"
 
     # Read the HTML file
     with open(html_file, 'r') as file:
@@ -55,31 +45,32 @@ def extract_splits(html_file):
 
     # Names of courses
     courses = soup.find_all('b', string=course_title)
-    courses = map(lambda title: title.text.strip(),  courses)
-    courses = list(map(lambda title: re.sub(r"\s*\(\d+\)", '', title),  courses))
+    courses = [re.sub(r"\s*\(\d+\)", '', title.text.strip()) for title in courses]
 
     # Find the table elements containing the results for all 3 courses (and header coming first)
     tables = soup.find_all('table')
 
-    # Iterating through 3 courses (=tables) and extracting splits
+    # Lists to store control points and runners for all courses
+    all_courses_controls = []
+    all_courses_runners = []
+
+    # Iterating through each course (=table) and extracting splits
     for course_index, table in enumerate(tables[1:]):
-
-        # Control points of a course
+        # Control points, runners of a course and each runners' splits
         course_controls = []
-
-        # Runners of a course
         course_runners = []
-
         runner_splits = []
+
         place_num = 0
         bib = 0
         name = ''
         group = ''
         time = ''
+
+        num_of_font_cells = 0
         info_row = None
         num_of_control_rows = None
         is_runner_extracted = False
-        num_of_font_cells = 0
 
         # Extract table's rows
         rows = table.find_all('tr')
@@ -156,13 +147,12 @@ def extract_splits(html_file):
                             runner_splits.append(cell.text.strip())
                             # if splits end on the same row they start - add a runner
                             if len(runner_splits) == len(course_controls):
-                                # Adding runner info
                                 course_runners.append(
                                     Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
                                 is_runner_extracted = True
                                 break
                         else:
-                            # Adding not fully completed runner info (splits are not right)
+                            # Adding not fully completed runner info (if splits are not right)
                             course_runners.append(
                                 Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
                             is_runner_extracted = True
@@ -189,11 +179,7 @@ def extract_splits(html_file):
         all_courses_controls.append(course_controls)
         all_courses_runners.append(course_runners)
 
-    # for i in range(len(all_courses_runners)):
-    #     for j in range(len(all_courses_runners[i])):
-    #         print(repr(all_courses_runners[i][j]))
-
-    return title, all_courses_controls, all_courses_runners, courses
+    return title, courses, all_courses_controls, all_courses_runners
 
 
 html_file = 'Sia Mathiatis 26 Mar 2023 splits2.html'
