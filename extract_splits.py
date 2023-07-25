@@ -53,8 +53,6 @@ for x in soup.find_all():
     if len(x.get_text(strip=True)) == 0 and x.name not in ['font'] and len(x.find_all()) == 0 \
             or has_child_i_tag(x):
         x.extract()
-    # if has_child_i_tag(x):
-    #     x.extract()
 
 # Names of courses
 courses = soup.find_all('b', string=course_title)
@@ -82,7 +80,7 @@ for course_index, table in enumerate(tables[1:]):
     info_row = None
     num_of_control_rows = None
     is_runner_extracted = False
-    extract_name_mode = False
+    # extract_name_mode = False
     num_of_font_cells = 0
 
     # Extract table's rows
@@ -116,35 +114,48 @@ for course_index, table in enumerate(tables[1:]):
             # Finding first field related to runner (first <font> tag)
             elif not is_runner_found and cell.find('font'):
                 is_runner_found = True
+                is_runner_extracted = False
+                runner_splits = []
+
                 runner_info_start_index = cell_index
                 info_row = row_index
-                runner_splits = []
-                # Recording info from this field
-                place_num = cell.text.strip()
                 extract_name_mode = True
+
                 num_of_font_cells = 1
+                i = cell_index
+                while cells[i + 1].find('font'):
+                    num_of_font_cells += 1
+                    i += 1
+
+                # Recording info from this field
+                if num_of_font_cells == 5:
+                    place_num = cell.text.strip()
+                else:
+                    place_num = "<-->"
+                    bib = cell.text.strip()
 
             # Recording runners' info from the 4 following fields
             # Recording splits from the same row
             elif is_runner_found and runner_info_start_index is not None:
-                # if num_of_font_cells == 1:
-                #     i = cell_index
-                #     while extract_name_mode:
-                #         num_of_font_cells += 1
-                #         if not cells[i + 1].find('font'):
-                #             extract_name_mode = False
-                #         i += 1
-
-                if cell_index == runner_info_start_index + 1:
-                    bib = cell.text.strip() if cell.text.strip() != '' else "<-->"
-                elif cell_index == runner_info_start_index + 2:
-                    name = cell.text.strip() if cell.text.strip() != '' else "<-->"
-                elif cell_index == runner_info_start_index + 3:
-                    group = cell.text.strip() if cell.text.strip() != '' else "<-->"
-                elif cell_index == runner_info_start_index + 4:
-                    time = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                if cell_index < num_of_font_cells:
+                    if num_of_font_cells == 5:
+                        if cell_index == runner_info_start_index + 1:
+                            bib = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                        elif cell_index == runner_info_start_index + 2:
+                            name = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                        elif cell_index == runner_info_start_index + 3:
+                            group = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                        elif cell_index == runner_info_start_index + 4:
+                            time = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                    else:
+                        if cell_index == runner_info_start_index + 1:
+                            name = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                        elif cell_index == runner_info_start_index + 2:
+                            group = cell.text.strip() if cell.text.strip() != '' else "<-->"
+                        elif cell_index == runner_info_start_index + 3:
+                            time = cell.text.strip() if cell.text.strip() != '' else "<-->"
                 # splits
-                elif len(runner_splits) < len(course_controls):
+                elif cell_index >= num_of_font_cells and len(runner_splits) < len(course_controls):
                     if cell.find(string=split_time):
                         runner_splits.append(cell.text.strip())
                         # if splits end on the same row they start - add a runner
@@ -152,11 +163,13 @@ for course_index, table in enumerate(tables[1:]):
                             # Adding runner info
                             course_runners.append(
                                 Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                            is_runner_extracted = True
                             break
                     else:
                         # Adding not fully completed runner info (splits are not right)
                         course_runners.append(
                             Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                        is_runner_extracted = True
                         break
 
             # Adding splits from other rows with same parity
@@ -167,12 +180,15 @@ for course_index, table in enumerate(tables[1:]):
                         # Adding runner info
                         course_runners.append(
                             Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                        is_runner_extracted = True
                         break
                 else:
                     # Adding not fully completed runner info (splits are not right)
-                    course_runners.append(
-                        Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
-                    break
+                    if not is_runner_extracted:
+                        course_runners.append(
+                            Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                        is_runner_extracted = True
+                        break
 
     all_courses_controls.append(course_controls)
     all_courses_runners.append(course_runners)
