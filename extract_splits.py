@@ -1,5 +1,9 @@
 from bs4 import BeautifulSoup
 import re
+import json
+from flask import Flask
+
+app = Flask(__name__)
 
 
 class Runner:
@@ -16,16 +20,31 @@ class Runner:
         return f"\n{self.__class__.__name__}({self.place}, {self.name}, {self.age_group} " \
                f"{self.overall_time} {self.bib} {self.course} {self.splits})"
 
+    def to_json(self):
+        # Return a dictionary representation of the object
+        return {
+            'name': self.name,
+            'course': self.course,
+            'place': self.place,
+            'bib': self.bib,
+            'age_group': self.age_group,
+            'overall_time': self.overall_time,
+            'splits': self.splits
+        }
+
 
 def has_child_i_tag(tag):
     return tag.find('i', recursive=False) is not None
 
 
-def extract_splits(html_file):
+@app.route("/", methods=['GET'])
+def extract_splits():
     # Regular expressions
     control_point = re.compile(r'^\d{1,2}\(\d{2,3}\)\s*')  # control point "3(57)"
     course_title = re.compile(r'\w+\s*\(\d{2,3}\)\s*')  # course title "Blue (16)"
     split_time = re.compile(r'\d{1,2}:\d{2}')  # time "03:22"
+
+    html_file = 'results_files/Sia Mathiatis 26 Mar 2023 splits2.html'
 
     # Read the HTML file
     with open(html_file, 'r') as file:
@@ -106,7 +125,6 @@ def extract_splits(html_file):
 
                     runner_info_start_index = cell_index
                     info_row = row_index
-                    extract_name_mode = True
 
                     num_of_font_cells = 1
                     i = cell_index
@@ -148,13 +166,17 @@ def extract_splits(html_file):
                             # if splits end on the same row they start - add a runner
                             if len(runner_splits) == len(course_controls):
                                 course_runners.append(
-                                    Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                                    json.dumps(
+                                        Runner(name, courses[course_index], place_num, bib, group, time, runner_splits),
+                                        default=lambda obj: obj.to_json(), indent=2))
                                 is_runner_extracted = True
                                 break
                         else:
                             # Adding not fully completed runner info (if splits are not right)
                             course_runners.append(
-                                Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                                json.dumps(
+                                    Runner(name, courses[course_index], place_num, bib, group, time, runner_splits),
+                                    default=lambda obj: obj.to_json(), indent=2))
                             is_runner_extracted = True
                             break
 
@@ -165,22 +187,32 @@ def extract_splits(html_file):
                         if len(runner_splits) == len(course_controls):
                             # Adding runner info
                             course_runners.append(
-                                Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                                json.dumps(
+                                    Runner(name, courses[course_index], place_num, bib, group, time, runner_splits),
+                                    default=lambda obj: obj.to_json(), indent=2))
                             is_runner_extracted = True
                             break
                     else:
                         # Adding not fully completed runner info (splits are not right)
                         if not is_runner_extracted:
                             course_runners.append(
-                                Runner(name, courses[course_index], place_num, bib, group, time, runner_splits))
+                                json.dumps(
+                                    Runner(name, courses[course_index], place_num, bib, group, time, runner_splits),
+                                    default=lambda obj: obj.to_json(), indent=2))
                             is_runner_extracted = True
                             break
 
         all_courses_controls.append(course_controls)
         all_courses_runners.append(course_runners)
 
-    return title, courses, all_courses_controls, all_courses_runners
+    return {'title': title,
+            'courses': courses,
+            'controls': all_courses_controls,
+            'runners': all_courses_runners}
 
 
-html_file = 'Sia Mathiatis 26 Mar 2023 splits2.html'
-print(extract_splits(html_file))
+if __name__ == "__main__":
+    app.run(debug=False, port=9000)
+
+# html_file = 'Sia Mathiatis 26 Mar 2023 splits2.html'
+# print(type(extract_splits(html_file)))
