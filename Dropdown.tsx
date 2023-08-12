@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Option, SplitContext } from "../App"
+import { Option, SplitContext, OrientCourse  } from "../App"
 
 interface Props {
     options: Option[];
     orientEvent: string;
     setOrientEvent: React.Dispatch<React.SetStateAction<string>>;
-    orientCourse: string;
-    setOrientCourse: React.Dispatch<React.SetStateAction<string>>;
+    orientCourse: OrientCourse ;
+    setOrientCourse: React.Dispatch<React.SetStateAction<OrientCourse | undefined >>;
 
 }
 
@@ -15,7 +15,7 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
 
     useEffect(() => {
         if (splitData) {
-            const defaultOrientCourse = splitData.courses.length > 0 ? splitData.courses[0] : '';
+            const defaultOrientCourse = splitData.courses.length > 0 ? {name: splitData.courses[0], key: 0} : {name: '', key: 0};
             setOrientCourse(defaultOrientCourse);
         } 
     }, [splitData])
@@ -34,11 +34,11 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
 
             { splitData ? (
             <div className="CourseMenu">
-                <h3>Select a Course:</h3>
+                <h3>Select a course:</h3>
                 <select 
                     className="form-select" 
-                    defaultValue={ orientCourse }
-                    onChange={(event) => setOrientCourse(event.target.value)}>
+                    defaultValue={ orientCourse.name }
+                    onChange={(event) => setOrientCourse({name: event.target.value, key:splitData.courses.indexOf(event.target.value)})}>
                     {splitData.courses.map((course: string) => (
                         <option key={ course }>{ course }</option>
                     ))}

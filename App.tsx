@@ -12,7 +12,7 @@ export interface Option {
   value: string;
 }
 
-interface Runner {
+export interface Runner {
   name: string;
   course: string;
   place: number;
@@ -20,6 +20,7 @@ interface Runner {
   age_group: string;
   overall_time: string; 
   splits: string[];
+  id: number;
 }
 
 interface SplitInfo {
@@ -34,9 +35,9 @@ interface SplitInfo {
 //   username: SplitInfo;
 // }
 
-interface OrientCourse {
-  name:string;
-  key:number;
+export interface OrientCourse {
+  name: string;
+  key: number;
 }
 
 const options: Option[] = [
@@ -52,7 +53,7 @@ function App() {
 
   const [orientEvent, setOrientEvent] = useState<string>(options[options.length - 1].value);
   const [splitData, setSplitData] = useState<SplitInfo | undefined>(undefined);
-  const [orientCourse, setOrientCourse] = useState<string>('');
+  const [orientCourse, setOrientCourse] = useState<OrientCourse | undefined>(undefined);
 
   useEffect(() => {
     // API Gateway endpoint 
@@ -77,11 +78,11 @@ function App() {
         options={ options } 
         orientEvent={ orientEvent } 
         setOrientEvent={ setOrientEvent }
-        orientCourse={ orientCourse }
+        orientCourse={ orientCourse ? orientCourse : {name: '', key: 0} }
         setOrientCourse={ setOrientCourse } />
       <Navbar/>
         <Routes>
-          <Route path="/" element={<SplitsTable orientCourse={ orientCourse }/>}/>
+          <Route path="/" element={<SplitsTable orientCourse={ orientCourse? orientCourse : {name: '', key: 0} }/>}/>
           <Route path="/graphs" element={<Graphs />}/>
         </Routes>
       </Router>
