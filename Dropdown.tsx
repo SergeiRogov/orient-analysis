@@ -6,8 +6,7 @@ interface Props {
     orientEvent: string;
     setOrientEvent: React.Dispatch<React.SetStateAction<string>>;
     orientCourse: OrientCourse ;
-    setOrientCourse: React.Dispatch<React.SetStateAction<OrientCourse | undefined >>;
-
+    setOrientCourse: React.Dispatch<React.SetStateAction<OrientCourse>>;
 }
 
 export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, setOrientCourse}: Props) => {
@@ -28,7 +27,7 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
                 defaultValue={ orientEvent }
                 onChange={(event) => setOrientEvent(event.target.value)}>
                 {options.map((opt: Option) => (
-                    <option value={opt.value}>{ opt.label }</option>
+                    <option value={ opt.value }>{ opt.label }</option>
                 ))}
             </select>
 

@@ -47,13 +47,13 @@ const options: Option[] = [
   { label: 'Sia 26 Mar 2023', value: 'Sia Mathiatis 26 Mar 2023 splits.html' },
 ]
 
-export const SplitContext = createContext<SplitInfo | undefined>(undefined);
+export const SplitContext = createContext<SplitInfo>(undefined!);
 
 function App() {
 
   const [orientEvent, setOrientEvent] = useState<string>(options[options.length - 1].value);
-  const [splitData, setSplitData] = useState<SplitInfo | undefined>(undefined);
-  const [orientCourse, setOrientCourse] = useState<OrientCourse | undefined>(undefined);
+  const [splitData, setSplitData] = useState<SplitInfo>(undefined!);
+  const [orientCourse, setOrientCourse] = useState<OrientCourse>({name:'', key: 0});
 
   useEffect(() => {
     // API Gateway endpoint 
@@ -70,6 +70,11 @@ function App() {
     });
   }, [orientEvent]);
 
+  if (!splitData) {
+    // Context data is not available yet, display loading state or message
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="App">
       <SplitContext.Provider value={ splitData }>
@@ -78,11 +83,11 @@ function App() {
         options={ options } 
         orientEvent={ orientEvent } 
         setOrientEvent={ setOrientEvent }
-        orientCourse={ orientCourse ? orientCourse : {name: '', key: 0} }
+        orientCourse={ orientCourse }
         setOrientCourse={ setOrientCourse } />
       <Navbar/>
         <Routes>
-          <Route path="/" element={<SplitsTable orientCourse={ orientCourse? orientCourse : {name: '', key: 0} }/>}/>
+          <Route path="/" element={<SplitsTable orientCourse={ orientCourse }/>}/>
           <Route path="/graphs" element={<Graphs />}/>
         </Routes>
       </Router>
