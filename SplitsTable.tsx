@@ -36,7 +36,22 @@ export const SplitsTable = ({ orientCourse }: Props) => {
     const splitData = useContext(SplitContext);
     const splitColumns: Column<Runner>[] = splitData.controls[orientCourse.key].map((control: string, index: number) => ({
         Header: control,
-        accessor: (row) => row.splits[index],
+        accessor: (row) => {
+            if (row.splits && Array.isArray(row.splits) && row.splits[index]) {
+                return row.splits[index][0];
+            }
+            return '';
+        },
+        
+        Cell: ({ cell: { value } }: any) => {
+            if (typeof value === 'string') {
+                let lines = value.split('*');
+                let linesHTML = lines.map((line: string, index: number) => <div key={index}>{line}</div>);
+                return <div>{linesHTML}</div>;
+            } else {
+                return null;
+            }
+          },
     }));
 
     const columns = useMemo(() => [
