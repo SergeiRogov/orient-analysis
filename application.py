@@ -49,8 +49,8 @@ def lambda_handler(event, context):
     try:
         print('event:', json.dumps(event))
         # Extract the file name from the query parameters
-        file = event['queryStringParameters']['file_to_retrieve']
-        # file = 'Sia Mathiatis 26 Mar 2023 splits.html'
+        # file = event['queryStringParameters']['file_to_retrieve']
+        file = 'Sia Mathiatis 26 Mar 2023 splits.html'
         parsed_object_file = file.replace('.html', '.json')
 
         # Check if the parsed object file already exists in S3
@@ -246,23 +246,97 @@ def lambda_handler(event, context):
                             all_courses_runners[course_index][runner_index]['splits'][control_index - 1])
                         split_time = current - previous
                         all_courses_runners[course_index][runner_index]['splits'][
-                            control_index] = f"{convert_to_str(split_time)}\n{all_courses_runners[course_index][runner_index]['splits'][control_index]}"
-                        runner_splits.append({'split': split_time, 'cumulative': current})
+                            control_index] = f"{convert_to_str(split_time)}*{all_courses_runners[course_index][runner_index]['splits'][control_index]}"
+                        runner_splits.append(
+                            {'split': split_time,
+                             'cumulative': current,
+                             'runner_index': runner_index,
+                             'control_index': control_index})
 
-                    # first split separately
-                    first_split = all_courses_runners[course_index][runner_index]['splits'][0]
-                    all_courses_runners[course_index][runner_index]['splits'][0] = f"{first_split}\n{first_split}"
-                    runner_splits.append(
-                        {'split': convert_to_seconds(first_split),
-                         'cumulative': convert_to_seconds(first_split)})
+                    if len(all_courses_runners[course_index][runner_index]['splits']) > 0:
+                        # first split separately
+                        first_split = all_courses_runners[course_index][runner_index]['splits'][0]
+                        all_courses_runners[course_index][runner_index]['splits'][0] = f"{first_split}*{first_split}"
+                        runner_splits.append(
+                            {'split': convert_to_seconds(first_split),
+                             'cumulative': convert_to_seconds(first_split),
+                             'runner_index': runner_index,
+                             'control_index': 0})
 
                     runner_splits.reverse()
                     course_splits.append(runner_splits)
+                max_row_length = max(len(row) for row in course_splits)
+
+                # Add zeros to rows with fewer elements
+                course_splits = [row + [{}] * (max_row_length - len(row)) for row in course_splits]
+
                 splits.append(course_splits)
 
-            # for course_index in range(len(splits)):
-            #     sorted_splits = sorted(splits[course_index], key=lambda runner: runner['split'])
-            #     sorted_cumulative = sorted(splits[course_index], key=lambda runner: runner['cumulative'])
+            def split_key(obj):
+                return obj.get('split', float('inf'))  # Use float('inf') if 'split' key is missing
+
+            def cumul_key(obj):
+                return obj.get('cumulative', float('inf'))  # Use float('inf') if 'cumul' key is missing
+
+            sorted_split_runners = []
+            sorted_cumul_runners = []
+            for course_index in range(len(splits)):
+                transposed_runners = list(map(list, zip(*splits[course_index])))
+                sorted_split_runners_course = []
+                sorted_cumul_runners_course = []
+                for control in transposed_runners:
+                    sorted_split = [sorted(control, key=split_key)]
+                    sorted_split_runners_course.append(list(map(list, zip(*sorted_split))))
+
+                    sorted_cumulative = [sorted(control, key=cumul_key)]
+                    sorted_cumul_runners_course.append(list(map(list, zip(*sorted_cumulative))))
+
+                sorted_split_runners.append(sorted_split_runners_course)
+                sorted_cumul_runners.append(sorted_cumul_runners_course)
+
+            place_regex = re.compile(r'\(\d+\)')
+            for course_index in range(len(sorted_split_runners)):
+                for control_index in range(len(sorted_split_runners[course_index])):
+                    for runner_leg_place in range(len(sorted_split_runners[course_index][control_index])):
+                        if 'runner_index' in sorted_split_runners[course_index][control_index][runner_leg_place][0]:
+                            runner_num = sorted_split_runners[course_index][control_index][runner_leg_place][0][
+                                'runner_index']
+                            cell = all_courses_runners[course_index][runner_num]['splits'][control_index]
+                            split, cumul = map(str, cell.split('*'))
+                            if runner_leg_place > 0 and \
+                                    sorted_split_runners[course_index][control_index][runner_leg_place][0]['split'] == \
+                                    sorted_split_runners[course_index][control_index][runner_leg_place - 1][0]['split']:
+                                cur_place = all_courses_runners[course_index][prev_runner_num]['splits'][control_index][
+                                    1]
+                                new_cell_tuple = (f"{split} ({cur_place})*{cumul}", cur_place)
+                            else:
+                                cur_place = runner_leg_place + 1
+                                new_cell_tuple = (f"{split} ({cur_place})*{cumul}", cur_place)
+                            prev_runner_num = runner_num
+                            all_courses_runners[course_index][runner_num]['splits'][control_index] = new_cell_tuple
+
+            for course_index in range(len(sorted_cumul_runners)):
+                for control_index in range(len(sorted_cumul_runners[course_index])):
+                    for runner_cumul_place in range(len(sorted_cumul_runners[course_index][control_index])):
+                        if 'runner_index' in sorted_cumul_runners[course_index][control_index][runner_cumul_place][0]:
+                            runner_num = sorted_cumul_runners[course_index][control_index][runner_cumul_place][0][
+                                'runner_index']
+                            cell = all_courses_runners[course_index][runner_num]['splits'][control_index]
+
+                            if runner_cumul_place > 0 and \
+                                    sorted_cumul_runners[course_index][control_index][runner_cumul_place][0][
+                                        'cumulative'] == \
+                                    sorted_cumul_runners[course_index][control_index][runner_cumul_place - 1][0][
+                                        'cumulative']:
+                                cur_place = all_courses_runners[course_index][prev_runner_num]['splits'][control_index][
+                                    2]
+                                new_cell_tuple = (f"{cell[0]} ({cur_place})", cell[1], cur_place)
+                            else:
+                                cur_place = runner_cumul_place + 1
+                                new_cell_tuple = (f"{cell[0]} ({cur_place})", cell[1], cur_place)
+
+                            prev_runner_num = runner_num
+                            all_courses_runners[course_index][runner_num]['splits'][control_index] = new_cell_tuple
 
             data_json = {'title': title,
                          'courses': courses,
