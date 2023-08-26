@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTable } from "react-table"
-import { } from "../pages/SplitsTable"
+import { } from "../pages/SplitsTable/SplitsTable"
 
 export const Table = () => {
     return (

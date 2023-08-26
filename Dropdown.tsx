@@ -20,10 +20,10 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
     }, [splitData])
     
     return (
-        <div className="Event-Course-Menu">
+        <div className="Event-Course-Menu" style={{ fontFamily: 'Open Sans', fontWeight: 300 }}>
             <h3>Select an event:</h3>
             <select 
-                className="form-select" 
+                className="form-select"  
                 defaultValue={ orientEvent }
                 onChange={(event) => setOrientEvent(event.target.value)}>
                 {options.map((opt: Option) => (
@@ -32,7 +32,7 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
             </select>
 
             { splitData ? (
-            <div className="CourseMenu">
+            <div className="CourseMenu" >
                 <h3>Select a course:</h3>
                 <select 
                     className="form-select" 

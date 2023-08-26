@@ -1,0 +1,18 @@
+.bordered-table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid rgb(0, 0, 0);
+  }
+  
+  .bordered-table th,
+  .bordered-table td {
+    border: 1px solid rgb(0, 0, 0);
+    padding: 0; /* Remove padding from here */
+    text-align: center;
+    /* position: relative; */
+  }
+  
+  .bordered-table {
+    width: 1100px; /* Set your desired fixed width */
+  }
+  

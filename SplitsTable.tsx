@@ -1,6 +1,9 @@
 import { useState, useEffect, useContext, useMemo } from "react";
-import { SplitContext, OrientCourse, Runner } from "../App"
+import { SplitContext, OrientCourse, Runner } from "../../App"
 import { useTable, Column } from "react-table"
+import { getColor } from "../../Utils/getColor"
+import "./SplitsTable.css"
+
 
 interface Props {
     orientCourse: OrientCourse;
@@ -43,11 +46,39 @@ export const SplitsTable = ({ orientCourse }: Props) => {
             return '';
         },
         
-        Cell: ({ cell: { value } }: any) => {
+        Cell: ({ cell: { value }, row }: any) => {
             if (typeof value === 'string') {
+                const originalData = row.original as Runner; // Cast to Runner type
+                const tuple = originalData.splits[index];
+
                 let lines = value.split('*');
-                let linesHTML = lines.map((line: string, index: number) => <div key={index}>{line}</div>);
-                return <div>{linesHTML}</div>;
+                let linesHTML = lines.map((line: string, index: number) => {
+                    if (tuple) {
+                        const isBoldLine1 = index === 0 && typeof tuple[1] === 'number' && tuple[1] === 1;
+                        const isBoldLine2 = index === 1 && typeof tuple[2] === 'number' && tuple[2] === 1;
+                        const isBlue1 = index === 0 && typeof tuple[1] === 'number' && (tuple[1] === 1 || tuple[1] === 2 || tuple[1] === 3);
+                        const isBlue2 = index === 1 && typeof tuple[2] === 'number' && (tuple[2] === 1 || tuple[2] === 2 || tuple[2] === 3);
+
+                        return (
+                            <div key={index} 
+                                style={{ 
+                                    fontWeight: (isBoldLine1 || isBoldLine2) ? 'bold' : 'normal',
+                                    textDecoration: (isBoldLine1 || isBoldLine2) ? 'underline' : 'none',
+                                    color:  (isBlue1 || isBlue2) ? 'blue' : 'black',
+                                    backgroundColor: index === 0 ? getColor(tuple[3]) : getColor(tuple[4]),
+                                    padding: '4px', // Add padding to the div inside the cell
+                                    fontSize: '12px', // Adjust font size here
+                                }}>
+                                {line}
+                            </div>
+                        )
+                    }
+                });
+
+                return <div
+                    >
+                    {linesHTML}</div>;
+
             } else {
                 return null;
             }
@@ -95,16 +126,7 @@ export const SplitsTable = ({ orientCourse }: Props) => {
     } = tableInstance
 
     return (
-        // <div>
-        //     <h4>{splitData?.title}</h4>
-        //     <h4>{splitData?.courses[orientCourse.key]}</h4>
-        //     <h6>{splitData?.controls[orientCourse.key]}</h6>
-        //     {splitData?.runners[orientCourse.key]?.map((runner: Runner) => (
-        //         <h6 key={runner.id}>{runner.place + " " + runner.name + " " + runner.overall_time + " " + runner.splits}</h6>
-        //     ))}        
-        // </div>
-        
-        <table {...getTableProps()}>
+        <table {...getTableProps()} className="bordered-table" style={{ fontFamily: 'Open Sans', fontWeight: 300, fontSize: '12px', }}>
             <thead>
                 {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>{
@@ -118,15 +140,24 @@ export const SplitsTable = ({ orientCourse }: Props) => {
             <tbody {...getTableBodyProps()}>{
                 rows.map(row => {
                     prepareRow(row)
+                    const maxColumns = Math.max(headerGroups[0].headers.length, row.cells.length);
                     return (
-                        <tr {...row.getRowProps()}>{
-                            row.cells.map((cell) => {
-                                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                        <tr {...row.getRowProps()}>
+                            {Array.from({ length: maxColumns }).map((_, colIndex) => {
+                                const cell = row.cells[colIndex];
+
+                                return (
+                                    <td 
+                                        {...cell.getCellProps()} 
+                                    >   
+                                        {colIndex < row.cells.length ? cell.render('Cell') : null}
+                                    </td>
+                                );
                             })}
                         </tr>
-                    )
+                    );
                 })}
             </tbody>
         </table>
-    )
+    );
 }
