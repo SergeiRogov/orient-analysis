@@ -32,9 +32,10 @@ export const CheckBoxes = ({ orientCourse}: Props) => {
                     checked={selectedRunners[orientCourse.key].includes(runner.id)}
                     onChange={() => handleCheckboxChange(runner.id)}
                 />
-                {runner.name}
+                {runner.place + ". " + runner.name}
             </div>
             ))}
+            <div style={{ display: 'flex', flexDirection: 'column', width: '150px' }}>
             <button 
                 onClick={() => setSelectedRunners(selectedRunners.map((row, index) => (
                     index === orientCourse.key 
@@ -56,6 +57,7 @@ export const CheckBoxes = ({ orientCourse}: Props) => {
                     (index === orientCourse.key ? [] : row)))}>
                 Clear all
             </button>
+            </div>
         </div>
         
     );
