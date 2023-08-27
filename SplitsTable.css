@@ -2,17 +2,30 @@
     border-collapse: collapse;
     width: 100%;
     border: 1px solid rgb(0, 0, 0);
+}
+
+.bordered-table tr:nth-child(odd) {
+    background-color: #E8EAF2; /* Light gray for odd rows */
+}
+  
+.bordered-table tr:nth-child(even) {
+    background-color: #D9DDEA; /* White for even rows */
+}
+
+.bordered-table th {
+    background-color: rgb(138, 182, 248); /* Dark gray for header row */
+    color: rgb(0, 0, 0); /* White text for header row */
   }
   
-  .bordered-table th,
-  .bordered-table td {
+.bordered-table th,
+.bordered-table td {
     border: 1px solid rgb(0, 0, 0);
-    padding: 0; /* Remove padding from here */
+    padding: 0; 
     text-align: center;
-    /* position: relative; */
-  }
+    position: relative;
+}
   
-  .bordered-table {
-    width: 1100px; /* Set your desired fixed width */
-  }
+.bordered-table {
+    width: 800px; 
+}
   

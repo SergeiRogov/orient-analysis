@@ -2,10 +2,11 @@ import React, { useState, useEffect, createContext } from 'react';
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import './App.css';
 import { Navbar } from './components/Navbar';
-import { Dropdown } from './components/Dropdown';
+import { Dropdown } from './components/dropdown/Dropdown';
 import { Graphs } from './pages/Graphs';
-import { SplitsTable } from './pages/SplitsTable';
+import { SplitsTable } from './pages/SplitsTable/SplitsTable';
 import axios from 'axios';
+import { CheckBoxProvider } from './components/checkboxes/CheckboxContext';
 
 export interface Option {
   label: string;
@@ -19,7 +20,7 @@ export interface Runner {
   bib: number;
   age_group: string;
   overall_time: string; 
-  splits: string[];
+  splits: [string, number, number, number, number, number, number][]; 
   id: number;
 }
 
@@ -29,11 +30,6 @@ interface SplitInfo {
   controls:string[][];
   runners: Runner[][];
 }
-
-// interface AppContext {
-//   userId: Option[];
-//   username: SplitInfo;
-// }
 
 export interface OrientCourse {
   name: string;
@@ -78,6 +74,7 @@ function App() {
   return (
     <div className="App">
       <SplitContext.Provider value={ splitData }>
+      <CheckBoxProvider numOfCourses={splitData.controls.length}>
       <Router>
       <Dropdown 
         options={ options } 
@@ -88,9 +85,10 @@ function App() {
       <Navbar/>
         <Routes>
           <Route path="/" element={<SplitsTable orientCourse={ orientCourse }/>}/>
-          <Route path="/graphs" element={<Graphs />}/>
+          <Route path="/graphs" element={<Graphs orientCourse={ orientCourse }/>}/>
         </Routes>
       </Router>
+      </CheckBoxProvider>
       </SplitContext.Provider>
     </div>
   );

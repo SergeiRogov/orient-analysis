@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Option, SplitContext, OrientCourse  } from "../App"
+import { Option, SplitContext, OrientCourse  } from "../../App"
+import "./Dropdown.css"
 
 interface Props {
     options: Option[];
@@ -21,23 +22,32 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
     
     return (
         <div className="Event-Course-Menu" style={{ fontFamily: 'Open Sans', fontWeight: 300 }}>
-            <h3>Select an event:</h3>
-            <select 
-                className="form-select"  
-                defaultValue={ orientEvent }
-                onChange={(event) => setOrientEvent(event.target.value)}>
-                {options.map((opt: Option) => (
-                    <option value={ opt.value }>{ opt.label }</option>
-                ))}
-            </select>
+            <div className="Row">
+                <h3>Select an event:</h3>
+            
+                <select 
+                    className="form-select"  
+                    defaultValue={ orientEvent }
+                    onChange={(event) => setOrientEvent(event.target.value)}
+                    style={{ flex: 1 }}>
+                    {options.map((opt: Option) => (
+                        <option value={ opt.value }>{ opt.label }</option>
+                    ))}
+                </select>
+            </div>
 
             { splitData ? (
-            <div className="CourseMenu" >
+            <div className="Row">
                 <h3>Select a course:</h3>
                 <select 
                     className="form-select" 
                     defaultValue={ orientCourse.name }
-                    onChange={(event) => setOrientCourse({name: event.target.value, key:splitData.courses.indexOf(event.target.value)})}>
+                    onChange={(event) => 
+                        setOrientCourse({
+                            name: event.target.value, 
+                            key: splitData.courses.indexOf(event.target.value)
+                        })
+                    } style={{ flex: 2 }}>
                     {splitData.courses.map((course: string) => (
                         <option key={ course }>{ course }</option>
                     ))}

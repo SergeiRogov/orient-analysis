@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from "react";
+import { SplitContext, OrientCourse, Runner } from "./../App"
 
 type CanvasProps = React.DetailedHTMLProps<
     React.CanvasHTMLAttributes<HTMLCanvasElement>, 
     HTMLCanvasElement> 
     & {draw: (context: CanvasRenderingContext2D) => void};
 
-const Canvas: React.FC<CanvasProps> = ({ draw, ...props }) => {
+type ExtendedCanvasProps = CanvasProps & {
+    orientCourse: OrientCourse;
+    };
+
+const Canvas: React.FC<ExtendedCanvasProps> = ({ draw, orientCourse, ...props }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -16,8 +21,9 @@ const Canvas: React.FC<CanvasProps> = ({ draw, ...props }) => {
         if(!ctx) {
             return;
         }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         draw(ctx);
-    }, [draw]);
+    }, [draw, orientCourse]);
 
     return <canvas 
         width={props.width} 

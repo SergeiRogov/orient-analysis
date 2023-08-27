@@ -4,7 +4,6 @@ import { useTable, Column } from "react-table"
 import { getColor } from "../../Utils/getColor"
 import "./SplitsTable.css"
 
-
 interface Props {
     orientCourse: OrientCourse;
 }
@@ -68,6 +67,7 @@ export const SplitsTable = ({ orientCourse }: Props) => {
                                     backgroundColor: index === 0 ? getColor(tuple[3]) : getColor(tuple[4]),
                                     padding: '4px', // Add padding to the div inside the cell
                                     fontSize: '12px', // Adjust font size here
+                                    filter: `saturate(0.9)`
                                 }}>
                                 {line}
                             </div>
@@ -75,14 +75,12 @@ export const SplitsTable = ({ orientCourse }: Props) => {
                     }
                 });
 
-                return <div
-                    >
-                    {linesHTML}</div>;
+                return <div>{linesHTML}</div>;
 
             } else {
                 return null;
             }
-          },
+        },
     }));
 
     const columns = useMemo(() => [
@@ -126,11 +124,17 @@ export const SplitsTable = ({ orientCourse }: Props) => {
     } = tableInstance
 
     return (
-        <table {...getTableProps()} className="bordered-table" style={{ fontFamily: 'Open Sans', fontWeight: 300, fontSize: '12px', }}>
+        <table {...getTableProps()} 
+        className="bordered-table" 
+        style={{ 
+            fontFamily: 'Open Sans', 
+            fontWeight: 300, 
+            fontSize: '12px',
+            backgroundColor: "#DBDEE6" }}>
             <thead>
                 {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>{
-                            headerGroup.headers.map(column => (
+                            headerGroup.headers.map((column, index) => (
                                 <th {...column.getHeaderProps()}>{column.render("Header")}</th>
                             ))}
                     </tr>
@@ -147,9 +151,7 @@ export const SplitsTable = ({ orientCourse }: Props) => {
                                 const cell = row.cells[colIndex];
 
                                 return (
-                                    <td 
-                                        {...cell.getCellProps()} 
-                                    >   
+                                    <td {...cell.getCellProps()}>   
                                         {colIndex < row.cells.length ? cell.render('Cell') : null}
                                     </td>
                                 );

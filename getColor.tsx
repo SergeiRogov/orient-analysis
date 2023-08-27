@@ -1,20 +1,16 @@
 export const getColor = (percentOfBest: number) => {
     const colorRanges = [
-        { min: 100, max: 105, color: '#66FF66' },      
-        { min: 105, max: 115, color: '#7FFF7F' },
-        { min: 115, max: 125, color: '#99FF99' }, 
-        { min: 125, max: 135, color: '#B3FFB3' },
-        { min: 135, max: 145, color: '#CCFFCC' }, 
-        { min: 145, max: 165, color: '#FFFF99' }, 
-        { min: 165, max: 185, color: '#FFFF7F' }, 
-        { min: 185, max: 205, color: '#FFFF66' },  
-        { min: 205, max: 225, color: '#FFFF33' }, 
-        { min: 225, max: 255, color: '#FFFF00' }, 
-        { min: 255, max: 275, color: '#FFCC00' },  
-        { min: 275, max: 295, color: '#FF9900' },   
-        { min: 295, max: 315, color: '#FF8000' },
-        { min: 315, max: 335, color: '#FF6600' },
-        { min: 335, max: 10000000, color: '#FF3300' },   
+        { min: 100, max: 110, color: '#4be116' },      
+        { min: 110, max: 120, color: '#86e500' },
+        { min: 120, max: 140, color: '#b2e900' }, 
+        { min: 140, max: 160, color: '#d8ec01' },
+        { min: 160, max: 180, color: '#fbee23' }, 
+
+        { min: 180, max: 210, color: '#ffc400' }, 
+        { min: 210, max: 240, color: '#ffc400' }, 
+        { min: 240, max: 270, color: '#ff9900' },  
+        { min: 270, max: 300, color: '#ff6a1c' }, 
+        { min: 300, max: Number.POSITIVE_INFINITY, color: '#f73333' }, 
       ];
 
       for (const range of colorRanges) {
