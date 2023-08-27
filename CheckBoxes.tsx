@@ -46,10 +46,10 @@ export const CheckBoxes = ({ orientCourse}: Props) => {
             <button 
                 onClick={() => setSelectedRunners(selectedRunners.map((row, index) => (
                     index === orientCourse.key 
-                    ? Array.from({ length: 10 }, (_, index) => index)
+                    ? Array.from({ length: 5 }, (_, index) => index)
                     : row
                 )))}>
-                Select first 10
+                Select first 5
             </button>
             <button 
                 onClick={() => setSelectedRunners(selectedRunners.map((row, index) => 

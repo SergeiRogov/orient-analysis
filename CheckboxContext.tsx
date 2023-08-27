@@ -10,7 +10,7 @@ const CheckBoxContext = createContext<CheckBoxContextType | undefined>(undefined
 export const CheckBoxProvider: React.FC<{ children: React.ReactNode, numOfCourses: number }> = ({ children, numOfCourses }) => {
   const [selectedRunners, setSelectedRunners] = useState<number[][]>(
     Array.from({ length: 3 }, () => 
-    Array.from({ length: 10 }, (_, index) => index)));
+    Array.from({ length: 5 }, (_, index) => index)));
 
   return (
     <CheckBoxContext.Provider value={{ selectedRunners, setSelectedRunners }}>
