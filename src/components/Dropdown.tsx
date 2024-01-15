@@ -31,14 +31,13 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
                 className="form-select"  
                 value={ orientEvent }
                 onChange={(event) => setOrientEvent(event.target.value)}
-                style={{ width: '160px', marginRight: '20px' }}
+                style={{ width: '160px', marginRight: '20px', textAlign: 'center'}}
             >
                 {options.map((opt: Option) => (
-                    <option value={ opt.value }>{ opt.label }</option>
+                    <option value={ opt.value } style={{ textAlign: 'center' }}>{ opt.label }</option>
                 ))}
             </select>
-            
-            
+ 
             <div className="label">
                 <h4 className="label course" style={{ marginRight: '10px' }}>Course:</h4>
             </div>
@@ -51,10 +50,10 @@ export const Dropdown = ({options, orientEvent, setOrientEvent, orientCourse, se
                         name: event.target.value, 
                         key: splitData.courses.indexOf(event.target.value)
                     })
-                } style={{ width: '160px' }}
+                } style={{ width: '160px', textAlign: 'center'}}
             >
                 {splitData.courses.map((course: string) => (
-                    <option key={ course }>{ course }</option>
+                    <option key={ course } style={{ textAlign: 'center' }}>{ course }</option>
                 ))}
             </select>
         

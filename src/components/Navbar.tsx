@@ -18,5 +18,5 @@ export const Navbar = () => {
             <Link to="/">Splits</Link>
             <Link to="/graphs">Graphs</Link>
         </div>
-    )
+    );
 }

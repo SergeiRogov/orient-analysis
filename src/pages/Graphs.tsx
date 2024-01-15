@@ -5,10 +5,11 @@ import { CheckBoxes } from "../components/checkboxes/CheckBoxes"
 import { useCheckBoxContext } from '../components/checkboxes/CheckboxContext';
 import { divideSegment } from "../Utils/divideSegment"
 import { secondsToTime } from "../Utils/secondsToTime"
+import { timeToSeconds } from "../Utils/timeToSeconds"
 import '../styles/styles.css';
 
-const CANVAS_HEIGHT = 620;
-const CANVAS_WIDTH = 1070;
+const CANVAS_HEIGHT = 610;
+const CANVAS_WIDTH = 1010;
 
 const MARGIN_TOP = 30;
 const MARGIN_BOTTOM = 40;
@@ -60,7 +61,7 @@ export const Graphs = ({ orientCourse }: Props) => {
         }, -Infinity); // Initialize with negative infinity
     });
 
-    const differences = splitData.controls[orientCourse.key].map((runner, index) => {
+    const differences = splitData.controls[orientCourse.key].map((_, index) => {
         return worstCumulSelected[index] - bestCumulSelected[index]
     });
 
@@ -85,8 +86,8 @@ export const Graphs = ({ orientCourse }: Props) => {
         '#9c27b0', // purple 
         '#fa5b0f', // orange 15
 
-        '#0eeaff', // blue
         '#36175e', // purple
+        '#0eeaff', // blue
         '#012840', // blue 18
     ];
 
@@ -193,16 +194,21 @@ export const Graphs = ({ orientCourse }: Props) => {
                 ctx.fill();
             });
             // text with names
-            (/^\d{1,3}:\d{2}$/).test(runner.overall_time)
             if (selectedRunners[orientCourse.key].length > 1 && runner.splits.length > 0) {
                 ctx.fillStyle = lineColors[colorIndex];
                 ctx.font = '13px Open Sans';
                 curentYcoordinate = MARGIN_TOP + Ycoordinate;
 
-                if (runner.id > firstDNFid && (/^\d{1,3}:\d{2}$/).test(runner.overall_time)){
+                if ((runner.id > firstDNFid && (/^\d{1,3}:\d{2}$/).test(runner.overall_time)) || (runnerIndex > 0 && timeToSeconds(runnersToDisplay[runnerIndex - 1]?.overall_time) > timeToSeconds(runner.overall_time) )){
                     // do not modify currentYcoordinate
-                } else if (runner.id >= firstDNFid && !DNFrunnerIsMet && !(/^\d{1,3}:\d{2}$/).test(runner.overall_time)){
-                    curentYcoordinate = MARGIN_TOP + graphHeight + 12;
+                } else if (runner.overall_time === "DNF" && !DNFrunnerIsMet){
+                    if (prevYcoordinate > MARGIN_TOP + graphHeight - 5){
+                        curentYcoordinate = prevYcoordinate + 13;
+                    } else if (prevYcoordinate < MARGIN_TOP + graphHeight - 23){
+                        curentYcoordinate = MARGIN_TOP + graphHeight - 10;
+                    } else {
+                        curentYcoordinate = MARGIN_TOP + graphHeight + 12;
+                    }
                     DNFrunnerIsMet = true;
                 }
                 else if (runnerIndex > 0 && prevYcoordinate + 13 > curentYcoordinate){  
@@ -214,7 +220,10 @@ export const Graphs = ({ orientCourse }: Props) => {
                     (runner.name).toString(), 
                     MARGIN_LEFT + graphWidth + 7, 
                     curentYcoordinate );
-                prevYcoordinate = curentYcoordinate;
+                if (prevYcoordinate <= curentYcoordinate){
+                    prevYcoordinate = curentYcoordinate;
+                }
+                
             }
             
         });
