@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.9395e5ef.css",
-    "main.js": "/static/js/main.dc665edf.js",
+    "main.css": "/static/css/main.4e0bf90d.css",
+    "main.js": "/static/js/main.c7b4cfdb.js",
     "static/media/CyprusOrienteeringLogo.png": "/static/media/CyprusOrienteeringLogo.68e1e5667a3914f71247.png",
     "index.html": "/index.html",
-    "main.9395e5ef.css.map": "/static/css/main.9395e5ef.css.map",
-    "main.dc665edf.js.map": "/static/js/main.dc665edf.js.map"
+    "main.4e0bf90d.css.map": "/static/css/main.4e0bf90d.css.map",
+    "main.c7b4cfdb.js.map": "/static/js/main.c7b4cfdb.js.map"
   },
   "entrypoints": [
-    "static/css/main.9395e5ef.css",
-    "static/js/main.dc665edf.js"
+    "static/css/main.4e0bf90d.css",
+    "static/js/main.c7b4cfdb.js"
   ]
 }
