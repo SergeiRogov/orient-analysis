@@ -1,0 +1,36 @@
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid rgb(0, 0, 0);
+    margin-top: 100px;
+    width: 800px; 
+    border-spacing: 0;
+}
+
+.table tr:nth-child(odd) {
+    background-color: #E8EAF2; /* Light gray for odd rows */
+}
+  
+.table tr:nth-child(even) {
+    background-color: #D9DDEA; /* White for even rows */
+}
+
+.table th {
+    background-color: rgb(138, 182, 248); /* Dark gray for header row */
+    color: rgb(0, 0, 0); /* White text for header row */
+}
+  
+.table th,
+.table td {
+    border: 1px solid rgb(0, 0, 0);
+    padding: 0; 
+    margin: 0;
+    text-align: center;
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    .table {
+        margin-top: 100px;
+    }
+}
