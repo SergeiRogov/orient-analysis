@@ -80,6 +80,17 @@ const options: Option[] = [
   { label: "Delikipos 3 Dec 2023", value: "Splits Championships 2023.html" },
   { label: "Lefkara 28 Jan 2024", value: "Lefkara28-1-24 splits.html" },
   { label: "Kouris Dam 18 Feb 2024", value: "Kouris18-2-24 splits.html" },
+  { label: "Kalavasos 21 Apr 2024", value: "21 Apr 24 Kalavasos Splits.html" },
+  { label: "Palechori 19 May 2024", value: "Palechori 19 May splits.html" },
+  { label: "Troodos 2 June 2024", value: "Splits Troodos as HTML.html" },
+  {
+    label: "Olympus 7 July 2024",
+    value: "Mt Olympos 7 Jul 24 Splits as HTML.html",
+  },
+  {
+    label: "Piale Pasha 4 Aug 2024",
+    value: "Piale Pasha 4 Aug 2024 splits.html",
+  },
 ];
 
 export const SplitContext = createContext<SplitInfo>(undefined!);
@@ -101,7 +112,7 @@ function App() {
     // API Gateway endpoint
     axios
       .get(
-        "https://8cb9vtn6xb.execute-api.eu-west-3.amazonaws.com/Stage1/extract-orienteering-splits",
+        "https://o7842c3w9f.execute-api.eu-north-1.amazonaws.com/stage1/splitsParser",
         {
           params: {
             file_to_retrieve: orientEvent,
